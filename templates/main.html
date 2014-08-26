@@ -1,0 +1,35 @@
+<html ng-app=calendar>
+	<head>
+		<title>What is up?</title>
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+		<link rel="shortcut icon" href="statics/favicon.ico">
+		<style>
+			body {background-color:#652D89;}
+			.day {border: 2px solid #D5610E; color:white; height:100px;}
+			.glyphicon {color:white; font-size:30px;}
+			h1 {color:white; text-align:center; display:inline}
+			p {color:white;}
+		</style>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+		<script>var calendar=angular.module('calendar',[]);
+			calendar.controller('month_and_year',['$scope', function($scope) {$scope.month={{months_iter}}; 
+			$scope.month_names=['','January','February','March','April','May','June','July','August','September','October','November','December'];
+			}]);
+		</script>
+	</head>
+	<body>
+		<div class=container-fluid>
+			
+				<div ng-controller="month_and_year" class="inline col-xs-6 col-xs-offset-3">
+					<div ng-click="month=month-1" class="inline glyphicon glyphicon-chevron-left"></div>
+						<h1 ng-bind="month_names[month]"></h1>
+					<div ng-click="month=month+1" class="inline glyphicon glyphicon-chevron-right"></div>
+				</div>
+			
+		</div>
+	
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	</body>
+
+</html
