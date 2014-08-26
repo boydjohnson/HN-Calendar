@@ -13,8 +13,13 @@
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
 		<script>var calendar=angular.module('calendar',[]);
-			calendar.controller('month_and_year',['$scope', function($scope) {$scope.month={{months_iter}}; 
+			calendar.controller('month_and_year',['$scope', function($scope) {$scope.month={{current_month}}; 
+			$scope.year={{current_year}};
 			$scope.month_names=['','January','February','March','April','May','June','July','August','September','October','November','December'];
+			$scope.add_one=function(){if($scope.month==12){$scope.year=$scope.year+1;$scope.month=1;}
+				else{$scope.month=$scope.month+1}};
+			$scope.sub_one=function(){if($scope.month==1){$scope.year=$scope.year-1;$scope.month=12;}
+				else{$scope.month=$scope.month-1}};
 			}]);
 		</script>
 	</head>
@@ -22,9 +27,10 @@
 		<div class=container-fluid>
 			
 				<div ng-controller="month_and_year" class="inline col-xs-6 col-xs-offset-3">
-					<div ng-click="month=month-1" class="inline glyphicon glyphicon-chevron-left"></div>
-						<h1 ng-bind="month_names[month]"></h1>
-					<div ng-click="month=month+1" class="inline glyphicon glyphicon-chevron-right"></div>
+					<div ng-click="sub_one()" class="inline glyphicon glyphicon-chevron-left"></div>
+						<h1 ng-bind="month_names[month]"></h1><h1> - </h1>
+						<h1 ng-bind="year"></h1>
+					<div ng-click="add_one()" class="inline glyphicon glyphicon-chevron-right"></div>
 				</div>
 			
 		</div>

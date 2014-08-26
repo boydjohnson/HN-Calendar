@@ -5,13 +5,13 @@ import calendar
 app = Flask(__name__,instance_path='C:/Documents and Settings/Owner/My Documents/Downloads/RealPython Homework/flask-hn')
 Triangle(app)
 
-months=list(calendar.month_name)
-months_iter=8
+current_month=8
+current_year=2014
 
 #Urls
 @app.route('/')
 def homepage():
-	return render_template('main.html',months=months,months_iter=months_iter)
+	return render_template('main.html',current_month=current_month,current_year=current_year)
 
 
 if __name__ == '__main__':
