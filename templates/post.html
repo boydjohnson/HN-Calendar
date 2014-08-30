@@ -1,0 +1,20 @@
+<html ng-app="post">
+	<head>
+		<title>Post your event</title>
+	
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+	</head>
+	<body>
+		<form name="poster">
+			{% for field in form %}
+				<label>{{field.label}}</label> {{field()}} <br>
+			{% endfor %}
+			
+		</form>
+	
+	
+	
+	
+	</body>
+</html>
