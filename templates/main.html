@@ -5,9 +5,10 @@
 		<link rel="shortcut icon" href="statics/favicon.ico">
 		<style>
 			body {background-color:#652D89;}
-			.day {display:inline-block; border: 2px solid #D5610E; color:white; width:140px; height:100px;}
+			.day {display:inline-block; border: 2px solid #D5610E; color:white; padding: 0; width:140px; height:200px; overflow:hidden;}
 			.glyphicon {color:white; font-size:30px;}
 			h1 {color:white; display:inline-block;}
+			span {border: 2px solid white;}
 			.month {width:200px; margin:0px; padding:0px}
 			.calendar {position:absolute; display:inline-block; left:200px; top:200px; width:1100px;}
 			.days_header {display:inline-block; border:4px solid #D5610E; color:white; width:140px; height:30px;}
@@ -18,7 +19,10 @@
 			calendar.controller('month_and_year',['$scope', '$http', function($scope,$http) {$scope.month={{current_month}}; 
 			$scope.year={{current_year}};
 			$scope.year_calendar = {{year_calendar}};
+			$scope.posts = {{posts|tojson|safe}};
+			
 			$scope.days_of_the_week = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+			
 			$scope.month_calendar= function(num){
 				var arr=[];
 				var index_of_first=0;
@@ -37,6 +41,17 @@
 							
 				return arr[num]
 				};
+			
+			$scope.months_posts= function(){
+									var array = [];
+									for(var i=0;i<$scope.posts.length;i++){
+									var date_time = new Date($scope.posts[i].post_date);
+									var m = date_time.getMonth();
+									var y = date_time.getFullYear();
+									var d = date_time.getDate();
+									if(m+1==$scope.month&y==$scope.year){
+										array.push([$scope.posts[i].post_title,$scope.posts[i].post_content,$scope.posts[i].post_hash,y,m,d,$scope.posts[i].id]);}}return array;};
+			
 			$scope.month_names=['','January','February','March','April','May','June','July','August','September','October','November','December'];
 			$scope.send_year = function() {
 				var url = "http://localhost:5000/day-lookup/?year=" + $scope.year;
@@ -51,13 +66,13 @@
 				else{$scope.month++;}};
 			$scope.sub_one=function(){if($scope.month==1){$scope.year--;$scope.send_year(); $scope.month=12;}
 				else{$scope.month--;}};
-			
+		
 			}]);
 			
-			
+		
 		</script>
 	</head>
-	<body>
+	<body ng-controller="month_and_year">
 		<nav class="navbar navbar-default" role="navigation">
 			<div class="container-fluid">
 				<div class="navbar-header">
@@ -75,22 +90,31 @@
 				</div>
 			</div>
 		</nav>
-	
+			{% with messages = get_flashed_messages() %}
+		{% if messages %}
+		<ul>
+		{% for message in messages %}
+        <li>{{ message | safe }}</li>
+		{% endfor %}
+		</ul>
+		{% endif %}
+		{% endwith %}
 		
-			<div ng-controller="month_and_year">
-				<div class="col-xs-6 col-xs-offset-3">
-					<div ng-click="sub_one()" class="glyphicon glyphicon-chevron-left"></div>
-						<h1 ng-bind="month_names[month]" class="month"></h1><h1> - </h1>
-						<h1 ng-bind="year"></h1>
-					<div ng-click="add_one()" class="glyphicon glyphicon-chevron-right"></div>
-				</div>
-				<div class="calendar">
-						<div ng-repeat="header in days_of_the_week" ng-bind="header" class="days_header"></div>
-						<div ng-repeat="date in month_calendar(month-1) track by $index" ng-bind="date" class="day"></div>
-					
-				</div>
+			
+		<div class="col-xs-6 col-xs-offset-3">
+			<div ng-click="sub_one()" class="glyphicon glyphicon-chevron-left"></div>
+				<h1 ng-bind="month_names[month]" class="month"></h1><h1> - </h1>
+				<h1 ng-bind="year"></h1>
+			<div ng-click="add_one()" class="glyphicon glyphicon-chevron-right"></div>
+		</div>
+		<div class="calendar">
+			<div ng-repeat="header in days_of_the_week" ng-bind="header" class="days_header"></div>
+			<div ng-repeat="date in month_calendar(month-1) track by $index" class="day">
+				<p ng-bind="date"></p>
+				<div ng-repeat="post in months_posts()">
+				<span ng-if="date==post[5]" ng-bind="post[0]"></span></div>
 			</div>
-	
+		</div>
 		
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 	</body>
