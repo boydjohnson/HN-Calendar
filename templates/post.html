@@ -6,13 +6,17 @@
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
 	</head>
 	<body>
-		<form name="poster">
-			{% for field in form %}
-				<label>{{field.label}}</label> {{field()}} <br>
-			{% endfor %}
-			
-		</form>
 	
+{% from "_formhelper.html" import render_field %}
+<form method=post>
+  <dl>
+    {{ render_field(form.title) }}
+    {{ render_field(form.content) }}
+    {{ render_field(form.hash_tag) }}
+    {{ render_field(form.date) }}
+  </dl>
+  <p><input type=submit value="Submit Event">
+</form>
 	
 	
 	

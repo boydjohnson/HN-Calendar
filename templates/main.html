@@ -28,9 +28,13 @@
 				index_of_first = $scope.year_calendar.indexOf(1,index_of_first+1);
 				var index_of_last1 = $scope.year_calendar.indexOf(1,index_of_first+1);
 				var index_of_last0 = $scope.year_calendar.indexOf(0,index_of_first+1);
-				if(index_of_last1<index_of_last0){index_of_last = index_of_last1;} else {index_of_last= index_of_last0;}
+				if(index_of_last1<index_of_last0&index_of_last1>0){index_of_last = index_of_last1;} else {index_of_last= index_of_last0;}
 				day_of_first = index_of_first % 7;
 				arr.push($scope.year_calendar.slice(index_of_first-day_of_first,index_of_last));}
+				for(var j=0; j<arr.length;j++){
+					for(var i=0;i<arr[j].length;i++){
+						if(arr[j][i]==0){arr[j][i]='Previous Month';}}}
+							
 				return arr[num]
 				};
 			$scope.month_names=['','January','February','March','April','May','June','July','August','September','October','November','December'];
