@@ -1,21 +1,37 @@
 <html ng-app="post">
 	<head>
 		<title>Post your event</title>
-	
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
 	</head>
 	<body>
-	
-{% from "_formhelper.html" import render_field %}
-<form method=post>
-  <dl>
-    {{ render_field(form.title) }}
-    {{ render_field(form.content) }}
-    {{ render_field(form.hash_tag) }}
-    {{ render_field(form.date) }}
-  </dl>
-  <p><input type=submit value="Submit Event">
+		<div class="pure-g">
+			<div class="pure-menu pure-menu-open pure-menu-horizontal">
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/">What's up, MCTC?</a></li>
+				</ul>
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/post">Post an event</a></li>
+				</ul>
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/search">Search for an event</a></li>
+				</ul>
+			</div>
+		</div
+		<div class="pure-g-responsive">
+	{% from "_formhelper.html" import render_field %}
+	<form method=post>
+	<dl class="pure-u-sm-1-2">
+		{{ render_field(form.title) }}
+		{{ render_field(form.content) }}
+		{{ render_field(form.hash_tag) }}
+		{{ render_field(form.year) }}
+		{{ render_field(form.month) }}
+		{{ render_field(form.date)}}
+		{{ render_field(form.hour) }}
+		{{ render_field(form.minute) }}
+	</dl>
+	<p><input type=submit value="Submit Event">
+	</div>
 </form>
 	
 	

@@ -1,34 +1,43 @@
 <html ng-app=calendar>
 	<head>
 		<title>What is up?</title>
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+		<!--[if lte IE 8]>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-old-ie-min.css">
+		<![endif]-->
+		<!--[if gt IE 8]><!-->
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+		<!--<![endif]-->
 		<link rel="shortcut icon" href="statics/favicon.ico">
 		<style>
-			body {background-color:#652D89;}
-			.day {display:inline-block; border: 2px solid #D5610E; color:white; padding: 0; width:140px; height:200px; overflow:hidden;}
-			.glyphicon {color:white; font-size:30px;}
+			body {background-color:#EAEAEA;}
+			.headliner {background-color:#652D89;}
+			.left_hash {word-wrap:break-word;}
+			.arrow {display:inline-block; font-size:100px; color:white;}
+			.day {display:inline-block; border: 2px solid black; color:black; padding: 0; width:140px; height:200px; overflow:hidden;}
 			h1 {color:white; display:inline-block;}
-			span {border: 2px solid white;}
+			span {border: 2px solid black; background-color:#E69138; border-radius:5px;}
 			.month {width:200px; margin:0px; padding:0px}
-			.calendar {position:absolute; display:inline-block; left:200px; top:200px; width:1100px;}
-			.days_header {display:inline-block; border:4px solid #D5610E; color:white; width:140px; height:30px;}
+			.calendar {display:inline-block; width:1100px;}
+			.days_header {font-size:20; display:inline-block; border:2px solid black; color:black; width:140px; height:30px;}
 		</style>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
-		<script type="text/javascript">var calendar=angular.module('calendar',[]);
-			calendar.controller('month_and_year',['$scope', '$http', function($scope,$http) {$scope.month={{current_month}}; 
-			$scope.year={{current_year}};
+		<script type="text/javascript">
+			var calendar = angular.module('calendar', []);
+			calendar.controller('month_and_year', ['$scope', '$http', function ($scope, $http) {$scope.month = {{current_month}}; 
+			$scope.year = {{current_year}};
 			$scope.year_calendar = {{year_calendar}};
 			$scope.posts = {{posts|tojson|safe}};
 			
 			$scope.days_of_the_week = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 			
-			$scope.month_calendar= function(num){
-				var arr=[];
-				var index_of_first=0;
-				var day_of_first=0;
-				var index_of_last=0;
-			for(var i=0;i<12; i++){
+			$scope.month_calendar = function(num){
+				var arr = [];
+				var index_of_first = 0;
+				var day_of_first = 0;
+				var index_of_last = 0;
+			for(var i = 0;i<12; i++){
 				index_of_first = $scope.year_calendar.indexOf(1,index_of_first+1);
 				var index_of_last1 = $scope.year_calendar.indexOf(1,index_of_first+1);
 				var index_of_last0 = $scope.year_calendar.indexOf(0,index_of_first+1);
@@ -36,23 +45,23 @@
 				day_of_first = index_of_first % 7;
 				arr.push($scope.year_calendar.slice(index_of_first-day_of_first,index_of_last));}
 				for(var j=0; j<arr.length;j++){
-					for(var i=0;i<arr[j].length;i++){
-						if(arr[j][i]==0){arr[j][i]='Previous Month';}}}
+					for(var k=0;k<arr[j].length;k++){
+						if(arr[j][k]===0){arr[j][k]='Previous Month';}}}
 							
-				return arr[num]
+				return arr[num];
 				};
 			
-			$scope.months_posts= function(){
+			$scope.months_posts = function(){
 									var array = [];
 									for(var i=0;i<$scope.posts.length;i++){
 									var date_time = new Date($scope.posts[i].post_date);
-									var m = date_time.getMonth();
-									var y = date_time.getFullYear();
-									var d = date_time.getDate();
+									var m = date_time.getUTCMonth();
+									var y = date_time.getUTCFullYear();
+									var d = date_time.getUTCDate();
 									if(m+1==$scope.month&y==$scope.year){
 										array.push([$scope.posts[i].post_title,$scope.posts[i].post_content,$scope.posts[i].post_hash,y,m,d,$scope.posts[i].id]);}}return array;};
 			
-			$scope.month_names=['','January','February','March','April','May','June','July','August','September','October','November','December'];
+			$scope.month_names = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 			$scope.send_year = function() {
 				var url = "http://localhost:5000/day-lookup/?year=" + $scope.year;
 				var url_promise = $http.get(url);
@@ -66,57 +75,58 @@
 				else{$scope.month++;}};
 			$scope.sub_one=function(){if($scope.month==1){$scope.year--;$scope.send_year(); $scope.month=12;}
 				else{$scope.month--;}};
-		
+			$scope.single_event = function(num){
+				window.location = "/event/" + num.toString(); };
 			}]);
 			
+			{% with messages = get_flashed_messages() %}
+		{% if messages %}
+		{% for message in messages %}
+			window.alert("{{ message | safe }}");
+		{% endfor %}
+		{% endif %}
+		{% endwith %}
 		
 		</script>
 	</head>
 	<body ng-controller="month_and_year">
-		<nav class="navbar navbar-default" role="navigation">
-			<div class="container-fluid">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-				</div>
-				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-					<ul class="nav navbar-nav">
-						<li><a href="/post" class="btn-success btn-navbar">Post an event.</a></li>
-					</ul>
-				</div>
+		<div class="pure-g">
+			<div class="pure-menu pure-menu-open pure-menu-horizontal">
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/">What's up, MCTC?</a></li>
+				</ul>
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/post">Post an event</a></li>
+				</ul>
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/search">Search for an event</a></li>
+				</ul>
 			</div>
-		</nav>
-			{% with messages = get_flashed_messages() %}
-		{% if messages %}
-		<ul>
-		{% for message in messages %}
-        <li>{{ message | safe }}</li>
-		{% endfor %}
-		</ul>
-		{% endif %}
-		{% endwith %}
-		
+		</div>
 			
-		<div class="col-xs-6 col-xs-offset-3">
-			<div ng-click="sub_one()" class="glyphicon glyphicon-chevron-left"></div>
+		
+		<div class="pure-g-responsive headliner">
+		<div class="pure-u-sm-1-4"></div>
+		<div class="pure-u-sm-1-2">
+			<div ng-click="sub_one()" class="arrow">&#8592;</div>
 				<h1 ng-bind="month_names[month]" class="month"></h1><h1> - </h1>
 				<h1 ng-bind="year"></h1>
-			<div ng-click="add_one()" class="glyphicon glyphicon-chevron-right"></div>
+			<div ng-click="add_one()" class="arrow">&#8594</div>
 		</div>
-		<div class="calendar">
+		<div class="pure-u-sm-1-4"></div>
+		</div>
+		<div class="pure-g-responsive">
+		<div class="pure-u-sm-3-24 left_hash"><ul>{% for post in posts %}<li>{{post.post_hash|wordwrap}}</li>{% endfor %}</ul></div>
+		<div class="calendar pure-u-sm-21-24">
 			<div ng-repeat="header in days_of_the_week" ng-bind="header" class="days_header"></div>
 			<div ng-repeat="date in month_calendar(month-1) track by $index" class="day">
 				<p ng-bind="date"></p>
 				<div ng-repeat="post in months_posts()">
-				<span ng-if="date==post[5]" ng-bind="post[0]"></span></div>
+				<span ng-click="single_event(post[6])" ng-if="date==post[5]" ng-bind="post[0]"></span></div>
 			</div>
 		</div>
-		
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+		</div>
+	
 	</body>
 
 </html
