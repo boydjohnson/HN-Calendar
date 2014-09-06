@@ -2,7 +2,8 @@
 from flask import Flask, redirect, url_for, render_template, request, jsonify, flash
 import datetime
 from calendar import Calendar, month_name,monthrange
-from wtforms import Form, TextField, validators,SelectField, TextAreaField, IntegerField
+from wtforms import Form, TextField, validators, TextAreaField
+from wtforms.ext.dateutil.fields import DateTimeField
 from flask.ext.sqlalchemy import SQLAlchemy
 from re import compile
 from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI
@@ -16,33 +17,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 db= SQLAlchemy(app)
 regex = compile('#')
 
-month_choices = zip(range(1,13),month_name[1:13])
 
-hours = ['Midnight']
-hours.extend(["{:d} AM".format(num) for num in range(1,12)])
-hours.append('Noon')
-hours.extend(["{:d} PM".format(num) for num in range(1,12)])
-hour_choices = zip(range(0,24), hours)
-
-
+key_words= dict()
+key_words['ignoretz'] = True
 
 class poster(Form):
-	title = TextField('title of event',[validators.Length(min=2, max=60)])
-	content = TextAreaField('What is the event about?',[validators.Length(min=6,max=500)])
-	hash_tag = TextField('hash tag',[validators.Regexp(regex)])
-	year = IntegerField('Year', [validators.Length(min=4,max=4)])
-	month = SelectField('Month', [validators.Required()],choices=month_choices)
-	date = SelectField('Day of the Month',[validators.Required()])
-	hour = SelectField('Time Hour', [validators.Required()], choices= hour_choices,default=12)
-	minute = SelectField('Time Minutes',[validators.Required()], choices=zip(range(0,60),range(0,60)))
-	
-def edit_date(form):
-	if str(form.month.data)=="None":
-		date_list = []
-	else:
-		date_list = range(1,monthrange(int(str(form.year.data)),int(str(form.month.data)))[1])
+	title = TextField('Event Title',[validators.Length(min=2, max=60)])
+	content = TextAreaField('Event Description',[validators.Length(min=6,max=500)])
+	hash_tag = TextField('Event hash tags',[validators.Regexp(regex)])
+	date_time = DateTimeField('Event Date and Time', [validators.Required()],parse_kwargs=key_words)
 
-	return zip(date_list,date_list)
+
+	
 
 # Model
 class post(db.Model):
@@ -68,7 +54,9 @@ now = datetime.datetime.now()
 current_month=now.month
 current_year=now.year
 
-def get_days_for_dates(year):
+
+# Function for getting dates and posts arranged together
+def get_days_for_dates(year,query_of_posts):
 	year_dates= Calendar().yeardayscalendar(year)
 	arr=[];
 	for quarter in year_dates:
@@ -76,25 +64,55 @@ def get_days_for_dates(year):
 			for week in month:
 				for date in week:
 					arr.append(date)
-	return arr
+	first = 0
+	last = 0
+	monthly_dates=[]
+	for month in range(12):
+		first = arr.index(1, last) if 1 in arr[last:len(arr)] else -1
+		last1 = arr.index(1,first+1) if 1 in arr[first+1:len(arr)] else -1
+		last0 = arr.index(0,first+1) if 0 in arr[first+1:len(arr)] else -1
+		if last1<last0:
+			last=last1
+		else:
+			last=last0
+		dates_of_month = ["Previous Month" for x in range(first % 7)]
+		dates_of_month.extend(arr[first:last])
+		monthly_dates.append(dates_of_month)
+	posts_wanted = []
+	for post in query_of_posts:
+		if post[3].year==year:
+			posts_wanted.append(post)
+	dates_and_posts = []
+	for month_index in range(0,len(monthly_dates)):
+		the_month = []
+		for date in monthly_dates[month_index]:
+			posts_for_dates = []
+			for post in posts_wanted:
+				if post[3].month==month_index+1 and post[3].day==date:
+					posts_for_dates.append(post)
+			the_month.append([date,posts_for_dates])
+		dates_and_posts.append(the_month)
+	return dates_and_posts
+	
+	
 
 	
-year_calendar = get_days_for_dates(current_year)
+
 
 
 
 #Urls
 @app.route('/')
 def homepage():
-	q = post.query.with_entities(post.post_title, post.post_content, post.post_hash, post.post_date, post.id).all()
-	return render_template('main.html',current_month=current_month,current_year=current_year,year_calendar=year_calendar,posts=q)
+	q = post.query.with_entities(post.post_title,post.post_content,post.post_hash,post.post_date,post.id).all()
+	year_calendar = get_days_for_dates(current_year,q)
+	return render_template('main.html',current_month=current_month,current_year=current_year,dates_posts=year_calendar)
 
 @app.route('/post',methods=['GET', 'POST'])
 def post_form():
 	form = poster(request.form)
-	form.date.choices = edit_date(form)
 	if request.method == 'POST' and form.validate():
-		p = post(form.title.data,form.content.data,form.hash_tag.data,datetime.datetime(int(str(form.year.data)),int(str(form.month)).data,form.date.data,form.hour.data,form.minutes.data))
+		p = post(form.title.data,form.content.data,form.hash_tag.data,form.date_time.data)
 		db.session.add(p)
 		db.session.commit()
 		flash("Thanks for posting your event!")
@@ -103,15 +121,15 @@ def post_form():
 
 @app.route('/event/<int:id_number>',methods=['GET'])
 def specific_event(id_number):
-	q = post.query.with_entities(post.post_title,post.post_content,post.post_hash,post.post_date).filter(post.id==id_number).first_or_404()
+	q = post.query.with_entities(post.post_title,post.post_content,post.post_hash,post.post_date,post.id).filter(post.id==id_number).first_or_404()
 	return render_template('spec_event.html', posts=q)
 	
 # route for AJAX request
 @app.route('/day-lookup/', methods=['GET'])
 def day_lookup():
 	year=request.args.get('year',None)
-	
-	return jsonify(dates=get_days_for_dates(int(year)))
+	q = post.query.with_entities(post.post_title,post.post_content,post.post_hash,post.post_date,post.id).all()
+	return jsonify(dates_posts=get_days_for_dates(int(year),q))
 	
 
 if __name__ == '__main__':

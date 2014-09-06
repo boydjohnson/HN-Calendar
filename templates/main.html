@@ -1,6 +1,6 @@
 <html ng-app=calendar>
 	<head>
-		<title>What is up?</title>
+		<title>What's up, MCTC?</title>
 		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
 		<!--[if lte IE 8]>
 		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-old-ie-min.css">
@@ -8,7 +8,7 @@
 		<!--[if gt IE 8]><!-->
 		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
 		<!--<![endif]-->
-		<link rel="shortcut icon" href="statics/favicon.ico">
+	
 		<style>
 			body {background-color:#EAEAEA;}
 			.headliner {background-color:#652D89;}
@@ -27,46 +27,18 @@
 			var calendar = angular.module('calendar', []);
 			calendar.controller('month_and_year', ['$scope', '$http', function ($scope, $http) {$scope.month = {{current_month}}; 
 			$scope.year = {{current_year}};
-			$scope.year_calendar = {{year_calendar}};
-			$scope.posts = {{posts|tojson|safe}};
-			
+			$scope.year_calendar = {{dates_posts|tojson|safe}};
+			$scope.month_calendar = function(index_of_month){return $scope.year_calendar[index_of_month-1];};
+		
 			$scope.days_of_the_week = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 			
-			$scope.month_calendar = function(num){
-				var arr = [];
-				var index_of_first = 0;
-				var day_of_first = 0;
-				var index_of_last = 0;
-			for(var i = 0;i<12; i++){
-				index_of_first = $scope.year_calendar.indexOf(1,index_of_first+1);
-				var index_of_last1 = $scope.year_calendar.indexOf(1,index_of_first+1);
-				var index_of_last0 = $scope.year_calendar.indexOf(0,index_of_first+1);
-				if(index_of_last1<index_of_last0&index_of_last1>0){index_of_last = index_of_last1;} else {index_of_last= index_of_last0;}
-				day_of_first = index_of_first % 7;
-				arr.push($scope.year_calendar.slice(index_of_first-day_of_first,index_of_last));}
-				for(var j=0; j<arr.length;j++){
-					for(var k=0;k<arr[j].length;k++){
-						if(arr[j][k]===0){arr[j][k]='Previous Month';}}}
-							
-				return arr[num];
-				};
-			
-			$scope.months_posts = function(){
-									var array = [];
-									for(var i=0;i<$scope.posts.length;i++){
-									var date_time = new Date($scope.posts[i].post_date);
-									var m = date_time.getUTCMonth();
-									var y = date_time.getUTCFullYear();
-									var d = date_time.getUTCDate();
-									if(m+1==$scope.month&y==$scope.year){
-										array.push([$scope.posts[i].post_title,$scope.posts[i].post_content,$scope.posts[i].post_hash,y,m,d,$scope.posts[i].id]);}}return array;};
 			
 			$scope.month_names = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 			$scope.send_year = function() {
 				var url = "http://localhost:5000/day-lookup/?year=" + $scope.year;
 				var url_promise = $http.get(url);
 				url_promise.success(function(data, status, headers, config) {
-					$scope.year_calendar = data.dates;
+					$scope.year_calendar = data.dates_posts;
                 });
 				url_promise.error(function(data,status,headers,config){
 					alert("AJAX Failed!");});};
@@ -116,13 +88,21 @@
 		<div class="pure-u-sm-1-4"></div>
 		</div>
 		<div class="pure-g-responsive">
-		<div class="pure-u-sm-3-24 left_hash"><ul>{% for post in posts %}<li>{{post.post_hash|wordwrap}}</li>{% endfor %}</ul></div>
+		<div class="pure-u-sm-3-24 left_hash">
+		<ul ng-repeat="date in month_calendar(month) track by $index">
+			<div ng-if="date[1].length>0" ng-repeat="post in date[1]">
+			<li ng-bind="post.post_hash" ng-click="single_event(post.id)"></li>
+			</div>
+		</ul>
+		
+		</div>
 		<div class="calendar pure-u-sm-21-24">
 			<div ng-repeat="header in days_of_the_week" ng-bind="header" class="days_header"></div>
-			<div ng-repeat="date in month_calendar(month-1) track by $index" class="day">
-				<p ng-bind="date"></p>
-				<div ng-repeat="post in months_posts()">
-				<span ng-click="single_event(post[6])" ng-if="date==post[5]" ng-bind="post[0]"></span></div>
+			<div ng-repeat="date in month_calendar(month) track by $index" class="day">
+				<p ng-bind="date[0]"></p>
+				<div ng-if="date[1].length>0" ng-repeat="post in date[1]">
+					<span ng-bind="post.post_title" ng-click="single_event(post.id)"><span>
+				</div>
 			</div>
 		</div>
 		</div>
