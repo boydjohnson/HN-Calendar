@@ -16,6 +16,8 @@ app.config['SECRET_KEY'] = SECRET_KEY
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 
 db= SQLAlchemy(app)
+
+
 regex = compile('#')
 
 
@@ -38,13 +40,14 @@ class post(db.Model):
 	post_content = db.Column(db.String(500))
 	post_date = db.Column(db.DateTime())
 	post_hash = db.Column(db.String(100))
-	post_user = db.Column(db.String(60))
+	
 	
 	def __init__(self, title, content, hash, date_time):
 		self.post_title = title
 		self.post_content = content
 		self.post_hash = hash
 		self.post_date = date_time
+		
 		
 	def __repr__(self):
 		return self.post_title
