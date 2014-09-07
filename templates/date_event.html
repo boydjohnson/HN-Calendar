@@ -1,0 +1,45 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+		<!--[if lte IE 8]>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-old-ie-min.css">
+		<![endif]-->
+		<!--[if gt IE 8]><!-->
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+		<!--<![endif]-->
+		<style> .event {border: 2px solid black; display:inline-block; height:300px; width:300px;}
+			
+		</style>
+	</head>
+	<body>
+	<div class="pure-g-responsive">
+			<div class="pure-menu pure-menu-open pure-menu-horizontal">
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/">What's up, MCTC?</a></li>
+				</ul>
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/post">Post an event</a></li>
+				</ul>
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/search">Search for an event</a></li>
+				</ul>
+			</div>
+		</div>
+	<h1>{{date.strftime('%Y %B %d')}}</h1>
+	{% for post in posts %}
+	<div class="pure-g-responsive">
+	<div class="event pure-u-sm-1-4">
+	<h3>Event Title:</h3><p> {{post.post_title}}</p>
+	<p><h3>Event Description:</h3> {{post.post_content}}</p>
+	<p>{{post.post_date.strftime('%I:%M %p')}}</p>
+	</div>
+	{% endfor %}
+	</div>
+
+
+
+
+
+
+	</body>
+</html>

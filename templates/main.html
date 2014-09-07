@@ -49,6 +49,8 @@
 				else{$scope.month--;}};
 			$scope.single_event = function(num){
 				window.location = "/event/" + num.toString(); };
+			$scope.date_events = function(num_year,num_month,num_day){
+				window.location = "/date/" + num_year.toString()+"/"+num_month.toString()+"/"+num_day.toString();};
 			}]);
 			
 			{% with messages = get_flashed_messages() %}
@@ -62,7 +64,7 @@
 		</script>
 	</head>
 	<body ng-controller="month_and_year">
-		<div class="pure-g">
+		<div class="pure-g-responsive">
 			<div class="pure-menu pure-menu-open pure-menu-horizontal">
 				<ul class="pure-u-sm-1-4">
 					<li><a href="/">What's up, MCTC?</a></li>
@@ -98,10 +100,10 @@
 		</div>
 		<div class="calendar pure-u-sm-21-24">
 			<div ng-repeat="header in days_of_the_week" ng-bind="header" class="days_header"></div>
-			<div ng-repeat="date in month_calendar(month) track by $index" class="day">
+			<div ng-repeat="date in month_calendar(month) track by $index" class="day" ng-click="date_events(year,month,date[0])">
 				<p ng-bind="date[0]"></p>
 				<div ng-if="date[1].length>0" ng-repeat="post in date[1]">
-					<span ng-bind="post.post_title" ng-click="single_event(post.id)"><span>
+					<span ng-bind="post.post_title" ng-click="single_event(post.id); $event.stopPropagation();"><span>
 				</div>
 			</div>
 		</div>

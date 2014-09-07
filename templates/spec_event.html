@@ -32,7 +32,9 @@
 			
 			<p>{{posts.post_hash}}</p>
 			
-			<p>{{posts.post_date}}</p>
+			<p>{{posts.post_date.strftime('%Y %B %d')}}</p>
+			
+			<p>{{posts.post_date.strftime('%I:%M %p')}}</p>
 			</div>
 	
 	

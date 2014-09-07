@@ -1,0 +1,50 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+		<!--[if lte IE 8]>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-old-ie-min.css">
+		<![endif]-->
+		<!--[if gt IE 8]><!-->
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+		<!--<![endif]-->
+		<style>.content {display:inline-block; border: 2px solid black; width:300px; height:300px; margin:10px;}
+			.search {display: inline-block; width:400px;}
+		</style>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+		<script>var search = angular.module('search', []);
+			search.controller('search_and_filter',['$scope', '$http', function ($scope) {$scope.posts= {{posts|tojson}};}]);
+			
+		</script>
+	</head>
+	<body ng-app="search" ng-controller="search_and_filter">
+		<div class="pure-g-responsive">
+			<div class="pure-menu pure-menu-open pure-menu-horizontal">
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/">What's up, MCTC?</a></li>
+				</ul>
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/post">Post an event</a></li>
+				</ul>
+				<ul class="pure-u-sm-1-4">
+					<li><a href="/search">Search for an event</a></li>
+				</ul>
+			</div>
+		</div>
+		<form>
+			<h3 class="search">Search:</h3><input class="search" ng-model="search_text"></input>
+		</form>
+		<div class="pure-g-responsive">
+		<div ng-repeat="post in posts|filter:search_text" class="pure-u-sm-1-4 content">
+			<h3 ng-bind="post.post_title"></h3>
+			<p ng-bind="post.post_content"></p>
+			<p ng-bind="post.post_hash"></p>
+			<p ng-bind="post.post_date.toString()"></p>
+		</div>
+		</div>
+
+
+
+
+	</body>
+</html>

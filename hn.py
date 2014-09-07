@@ -5,6 +5,7 @@ from calendar import Calendar, month_name,monthrange
 from wtforms import Form, TextField, validators, TextAreaField
 from wtforms.ext.dateutil.fields import DateTimeField
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import extract
 from re import compile
 from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI
 
@@ -123,6 +124,17 @@ def post_form():
 def specific_event(id_number):
 	q = post.query.with_entities(post.post_title,post.post_content,post.post_hash,post.post_date,post.id).filter(post.id==id_number).first_or_404()
 	return render_template('spec_event.html', posts=q)
+
+@app.route('/date/<int:year>/<int:month>/<int:day>',methods=['GET'])
+def date_page(year,month,day):
+	q = post.query.with_entities(post.post_title, post.post_content,post.post_date,post.id).filter(extract('year',post.post_date)==int(year),extract('month', post.post_date)==int(month),extract('day',post.post_date)==int(day)).all()
+	return render_template('date_event.html', posts=q,date=datetime.datetime(year,month,day))
+
+@app.route('/search',methods=['GET'])
+def search_page():
+	q = post.query.with_entities(post.post_title,post.post_content,post.post_hash,post.post_date,post.id).all()
+	return render_template('search.html',posts=q)
+
 	
 # route for AJAX request
 @app.route('/day-lookup/', methods=['GET'])
